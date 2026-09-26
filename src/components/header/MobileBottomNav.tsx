@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { getSession, useSession } from "next-auth/react";
 import { destinationSlugs } from "@/data/destinations";
-import { NavIcon } from "@/components/icons/NavIcon";
+import { BottomTabItemBody } from "@/components/ui/BottomTabBar";
 import { useReaderLoginPrompt } from "@/components/ReaderLoginPrompt";
 import { useTripFocus } from "@/components/trip-planner/TripFocus";
 import {
@@ -54,18 +54,11 @@ const TABS: Tab[] = [
 
 const BODY_VISIBLE_CLASS = "mobile-bottom-nav-visible";
 
-const tabClass =
-  "flex flex-1 flex-col items-center justify-center gap-0 px-1 text-xs font-medium leading-none transition focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-accent";
+/** Shared tab look (glass capsule, dark pill around icon + label): see ui/BottomTabBar. */
+const tabClass = "app-tab-bar-item";
 
-function TabBody({ tab, active }: { tab: Tab; active: boolean }) {
-  return (
-    <>
-      <span className={`flex h-7 w-7 items-center justify-center rounded-full ${active ? "bg-ink text-on-solid" : ""}`}>
-        <NavIcon name={tab.icon} size={20} />
-      </span>
-      <span>{tab.label}</span>
-    </>
-  );
+function TabBody({ tab }: { tab: Tab }) {
+  return <BottomTabItemBody icon={tab.icon} label={tab.label} />;
 }
 
 function SavedTab({ tab, active }: { tab: Tab; active: boolean }) {
@@ -94,10 +87,10 @@ function SavedTab({ tab, active }: { tab: Tab; active: boolean }) {
     return (
       <Link
         href={tab.href}
-        className={`${tabClass} ${active ? "text-heading" : "text-muted hover:text-heading"}`}
+        className={tabClass}
         aria-current={active ? "page" : undefined}
       >
-        <TabBody tab={tab} active={active} />
+        <TabBody tab={tab} />
       </Link>
     );
   }
@@ -105,14 +98,14 @@ function SavedTab({ tab, active }: { tab: Tab; active: boolean }) {
   return (
     <button
       type="button"
-      className={`${tabClass} ${active ? "text-heading" : "text-muted hover:text-heading"}`}
+      className={tabClass}
       aria-haspopup="dialog"
       aria-current={active ? "page" : undefined}
       onClick={() => {
         void openSaved();
       }}
     >
-      <TabBody tab={tab} active={active} />
+      <TabBody tab={tab} />
     </button>
   );
 }
@@ -150,10 +143,10 @@ export function MobileBottomNav() {
               ) : (
                 <Link
                   href={tab.href}
-                  className={`${tabClass} ${active ? "text-heading" : "text-muted hover:text-heading"}`}
+                  className={tabClass}
                   aria-current={active ? "page" : undefined}
                 >
-                  <TabBody tab={tab} active={active} />
+                  <TabBody tab={tab} />
                 </Link>
               )}
             </li>

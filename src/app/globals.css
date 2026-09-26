@@ -62,7 +62,13 @@
   --icon-button: 44px;
   --row-height: 48px;
   --row-height-single: 44px;
-  --tab-bar-height: 48px;
+  /* Bottom tab bar (site nav and trip sections share it; see .app-tab-bar). */
+  --tab-bar-item-height: 44px;
+  --tab-bar-inset: 5px; /* capsule padding, keeps the selected pill off the edge */
+  --tab-bar-height: calc(var(--tab-bar-item-height) + 2 * var(--tab-bar-inset) + 2px); /* 56px incl. 1px border */
+  --tab-bar-edge: 0.875rem; /* gap to the screen sides */
+  --tab-bar-float: 0.75rem; /* gap above the home indicator */
+  --tab-bar-item-radius: 0.7rem;
   --header-bar: 48px;
   --radius-control: 8px;
   --radius-card: 12px;
@@ -183,7 +189,7 @@ body {
 /* Space for fixed mobile bottom tab bar — while discovery navigation is visible. Desktop unchanged. */
 :root {
   --mobile-nav-bar: var(--tab-bar-height);
-  --mobile-nav-float: 0.55rem;
+  --mobile-nav-float: var(--tab-bar-float);
   --mobile-nav-gap: 0.75rem;
   --mobile-nav-clearance: calc(
     var(--mobile-nav-bar) + var(--mobile-nav-float) + env(safe-area-inset-bottom, 0px) + var(--mobile-nav-gap)
@@ -248,10 +254,9 @@ body {
 }
 
 .mobile-bottom-nav {
-  left: max(0.7rem, env(safe-area-inset-left, 0px));
-  right: max(0.7rem, env(safe-area-inset-right, 0px));
-  bottom: calc(var(--mobile-nav-float) + env(safe-area-inset-bottom, 0px));
-  padding: 0.2rem;
+  left: max(var(--tab-bar-edge), env(safe-area-inset-left, 0px));
+  right: max(var(--tab-bar-edge), env(safe-area-inset-right, 0px));
+  bottom: calc(var(--tab-bar-float) + env(safe-area-inset-bottom, 0px));
 }
 
 .mobile-bottom-nav-pad {
@@ -3777,51 +3782,28 @@ html:has(main.plan-flow .plan-workspace) { overflow-x: clip; }
     width: 100%;
   }
 
+  /* Look comes from the shared .app-tab-bar; this only pins it like the site bar. */
   .plan-workspace-tabs {
     position: fixed;
-    right: max(0.7rem, env(safe-area-inset-right, 0px));
-    bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
-    left: max(0.7rem, env(safe-area-inset-left, 0px));
+    right: max(var(--tab-bar-edge), env(safe-area-inset-right, 0px));
+    bottom: calc(var(--tab-bar-float) + env(safe-area-inset-bottom, 0px));
+    left: max(var(--tab-bar-edge), env(safe-area-inset-left, 0px));
     z-index: 140;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: stretch;
     width: auto;
-    min-height: 3.6rem;
     margin: 0;
-    border: 1px solid var(--glass-edge);
-    border-radius: 1.45rem;
-    background: var(--glass-fill);
-    box-shadow: var(--glass-shadow), var(--glass-sheen);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    padding: 0.28rem;
-  }
-
-  .plan-workspace-tabs > button {
-    flex: none;
-    flex-direction: column;
-    gap: 0.12rem;
-    min-height: 3.25rem;
-    padding: 0.35rem 0.15rem 0.3rem;
-    font-size: 0.75rem;
-    line-height: 1.15;
-    border-radius: 0.7rem;
-  }
-
-  .plan-workspace-tabs > button svg {
-    width: 1.125rem;
-    height: 1.125rem;
   }
 
   body.trip-focus .plan-trip-hotel:has(.plan-workspace),
   body:has(.plan-workspace-shell) .plan-trip-hotel:has(.plan-workspace),
   body:has(main.plan-flow) .plan-trip-hotel:has(.plan-workspace) {
-    padding-bottom: calc(5.55rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--tab-bar-height) + var(--tab-bar-float) + 1rem + env(safe-area-inset-bottom, 0px));
   }
 
   html:has(body .plan-workspace) {
-    scroll-padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(var(--tab-bar-height) + var(--tab-bar-float) + 1.25rem + env(safe-area-inset-bottom, 0px));
   }
 
   .plan-workspace [role="tabpanel"] .plan-sticky {
@@ -4285,10 +4267,129 @@ html:has(main.plan-flow .plan-workspace) { overflow-x: clip; }
 
 .ui-empty p + * { margin-top: var(--space-2); }
 
+/* ——— Bottom tab bar (shared) ———
+   One look for the site bar (MobileBottomNav) and the open-trip section bar
+   (ItineraryHub). Container: .app-tab-bar. Each tab: .app-tab-bar-item, selected
+   with aria-current="page" (links) or aria-selected="true" (tabs). Positioning
+   stays with each bar and reads --tab-bar-edge / --tab-bar-float. */
 .app-tab-bar {
+  box-sizing: border-box;
   height: var(--tab-bar-height);
-  padding: 2px;
+  padding: var(--tab-bar-inset);
+  border: 1px solid var(--glass-edge);
   border-radius: var(--radius-pill);
+  background: var(--glass-fill);
+  box-shadow: var(--glass-shadow), var(--glass-sheen);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+/* Solid cream when blur is unavailable or the reader asks for less transparency. */
+@supports not (backdrop-filter: blur(1px)) {
+  .app-tab-bar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--glass-fallback);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app-tab-bar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--glass-fallback);
+  }
+}
+
+.app-tab-bar .app-tab-bar-item {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  height: var(--tab-bar-item-height);
+  min-height: var(--tab-bar-item-height);
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--tab-bar-item-radius);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: var(--type-caption-size);
+  font-weight: var(--type-caption-weight);
+  line-height: 1.15;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-tab-bar .app-tab-bar-item:hover {
+  color: var(--heading);
+}
+
+.app-tab-bar .app-tab-bar-item[aria-current="page"],
+.app-tab-bar .app-tab-bar-item[aria-selected="true"] {
+  background: var(--ink);
+  color: var(--on-solid);
+}
+
+.app-tab-bar .app-tab-bar-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.app-tab-bar .app-tab-bar-item svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.app-tab-bar-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Very narrow phones: shrink the label instead of growing the bar. */
+@media (max-width: 359px) {
+  .app-tab-bar .app-tab-bar-item {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-tab-bar .app-tab-bar-item {
+    transition: none;
+  }
+}
+
+/* Trip section tabs sit in the page on iPad and desktop: keep their solid in-flow look. */
+@media (min-width: 768px) {
+  .plan-workspace-tabs.app-tab-bar {
+    display: flex;
+    height: 48px;
+    padding: 2px;
+    border-color: var(--border);
+    background: var(--white);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .plan-workspace-tabs.app-tab-bar .app-tab-bar-item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .plan-workspace-tabs.app-tab-bar .app-tab-bar-item svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 /* ——— Compact Plan a Trip ——— */
@@ -4797,32 +4898,10 @@ main.plan-flow:has(.plan-trip-summary) > .section-band {
 }
 
 @media (max-width: 767px) {
-  [data-density="compact"] .plan-workspace-tabs {
-    min-height: var(--tab-bar-height);
-    height: var(--tab-bar-height);
-    border-radius: var(--radius-pill);
-    padding: 2px;
-  }
-
-  [data-density="compact"] .plan-workspace-tabs > button {
-    min-height: 44px;
-    height: 44px;
-    gap: 0;
-    padding: 1px 2px 0;
-    font-size: var(--type-caption-size);
-    font-weight: var(--type-caption-weight);
-    line-height: 1.15;
-  }
-
-  [data-density="compact"] .plan-workspace-tabs > button svg {
-    width: 20px;
-    height: 20px;
-  }
-
   body.trip-focus .plan-trip-hotel:has(.plan-workspace),
   body:has(.plan-workspace-shell) .plan-trip-hotel:has(.plan-workspace),
   body:has(main.plan-flow) .plan-trip-hotel:has(.plan-workspace) {
-    padding-bottom: calc(var(--tab-bar-height) + 0.7rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--tab-bar-height) + var(--tab-bar-float) + 0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
   [data-density="compact"] .plan-workspace-toolbar {

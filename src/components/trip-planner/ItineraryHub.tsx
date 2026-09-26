@@ -16,6 +16,7 @@ import {
 } from "@/lib/trip-journal";
 import { OutboundLink } from "@/components/outbound/OutboundLink";
 import { NavIcon } from "@/components/icons/NavIcon";
+import { BottomTabItemBody } from "@/components/ui/BottomTabBar";
 import type { TripSaveMode } from "@/components/trip-planner/useTripSync";
 import {
   dateSummary,
@@ -1702,6 +1703,7 @@ export function ItineraryHub({
                 id={`${headingId}-workspace-${tab}`}
                 type="button"
                 role="tab"
+                className="app-tab-bar-item"
                 aria-selected={view === tab}
                 aria-controls={`${headingId}-view-${tab}`}
                 tabIndex={view === tab ? 0 : -1}
@@ -1725,18 +1727,18 @@ export function ItineraryHub({
                     ?.focus();
                 }}
               >
-                <NavIcon
-                  name={{ overview: "compass", itinerary: "map-pin", bookings: "book-marked", packing: "backpack" }[tab]}
-                  size={18}
-                  className="shrink-0"
+                <BottomTabItemBody
+                  icon={{ overview: "compass", itinerary: "map-pin", bookings: "book-marked", packing: "backpack" }[tab]}
+                  label={
+                    tab === "overview"
+                      ? "Overview"
+                      : tab === "itinerary"
+                        ? "Itinerary"
+                        : tab === "bookings"
+                          ? "Bookings"
+                          : "Packing"
+                  }
                 />
-                {tab === "overview"
-                  ? "Overview"
-                  : tab === "itinerary"
-                    ? "Itinerary"
-                    : tab === "bookings"
-                      ? "Bookings"
-                      : "Packing"}
               </button>
             ),
           )}

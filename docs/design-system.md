@@ -23,7 +23,10 @@ Defined on `:root` in `src/app/globals.css` and mirrored into the Tailwind theme
 | `--control-height` | 44px | Buttons, inputs, icon buttons |
 | `--chip-height` / `--chip-hit` | 36px / 44px | Chips |
 | `--row-height` | 48px | Row with a gray line (44px with no gray line) |
-| `--tab-bar-height` | 48px | Site tab bar and trip tab bar |
+| `--tab-bar-height` | 56px | Bottom tab bar: 44px tabs + 5px inset each side + 1px border |
+| `--tab-bar-inset` | 5px | Capsule padding around the tabs (selected pill never touches the edge) |
+| `--tab-bar-edge` / `--tab-bar-float` | 14px / 12px | Gap from the bar to the screen sides / above the home indicator (plus safe areas) |
+| `--tab-bar-item-radius` | 0.7rem (11.2px) | Selected tab pill |
 | `--header-bar` | 48px | Mobile header content |
 | `--radius-control` | 8px | Buttons, inputs, icon buttons |
 | `--radius-card` | 12px | Cards, dialogs, menus |
@@ -70,6 +73,25 @@ Primary is accent fill with on-solid label. Secondary is a white fill, hairline,
 ### EmptyState
 
 14px sentence, 12px padding, optional single action.
+
+### BottomTabBar
+
+`src/components/ui/BottomTabBar.tsx` plus the "Bottom tab bar (shared)" block in `globals.css`. It's the only source for the phone bottom bars: the site bar (`MobileBottomNav`: Places, Stories, Plan trip, Saved) and the open-trip section bar (`ItineraryHub`: Overview, Itinerary, Bookings, Packing).
+
+- **Container:** `app-tab-bar` is the frosted capsule.
+  - Fill: `--glass-fill` (warm cream `rgb(246 240 230 / 0.66)`).
+  - Border: 1px `--glass-edge`.
+  - Shadow: `--glass-shadow` + `--glass-sheen`.
+  - Blur: `blur(18px) saturate(1.4)`, with the `-webkit-` prefix.
+  - Shape: pill radius, `--tab-bar-inset` padding, height `--tab-bar-height`.
+  - Fallback: solid `--glass-fallback` when blur is unavailable or reduced transparency is on.
+- **Tab:** `app-tab-bar-item`, rendered with `BottomTabItemBody` (a 20px icon over a 12px / 500 Inter label).
+  - Height 44px.
+  - Inactive color is `--muted`; hover is `--heading`.
+- **Selected state:** `aria-current="page"` on links or `aria-selected="true"` on `role="tab"` buttons. It fills the whole tab (icon and label) with `--ink` and `--on-solid` text in a 0.7rem pill.
+- **Positioning:** each bar keeps its own `position: fixed` rule, but both read `--tab-bar-edge` and `--tab-bar-float` and add `env(safe-area-inset-*)`.
+- **Tight fit:** labels truncate and drop to 11px under 360px wide. Don't make the bar taller.
+- **iPad and desktop:** the trip section tabs sit in the page, as a solid white row with 18px icons and 0.9rem labels.
 
 ### Skeleton
 
